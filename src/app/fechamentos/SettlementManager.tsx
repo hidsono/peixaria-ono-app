@@ -49,31 +49,50 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
     };
 
     const handleSave = async () => {
+        if (!fishermanId || !startDate || !endDate) {
+            showToast("⚠️ Preencha todos os campos do período e pescador", "warning");
+            return;
+        }
+
         const gross_total = calculateBruteTotal();
         const expenses_total = calculateExpensesTotal();
         const net_total = gross_total - expenses_total;
 
         setIsSaving(true);
-        const adjustedExpenses = Object.entries(expensesAmounts).map(([id, amount]) => ({ id, amount }));
+        try {
+            const adjustedExpenses = Object.entries(expensesAmounts).map(([id, amount]) => ({ id, amount }));
 
-        const result = await createSettlement({
-            fishermanId,
-            start_date: startDate,
-            end_date: endDate,
-            gross_total,
-            expenses_total,
-            net_total,
-            adjustedExpenses
-        });
+            const result = await createSettlement({
+                fishermanId,
+                start_date: startDate,
+                end_date: endDate,
+                gross_total,
+                expenses_total,
+                net_total,
+                adjustedExpenses
+            });
 
-        setReceipt({
-            ...result,
-            fisherman: fishermen.find(f => f.id === fishermanId),
-            groupedLandings: data.groupedLandings.map((l: any) => ({ ...l, price: prices[l.species] || 0 })),
-            expenses: data.expenses.map((e: any) => ({ ...e, amount: expensesAmounts[e.id] }))
-        });
-        setIsSaving(false);
-        showToast("Fechamento realizado com sucesso!", "success");
+            if (result && (result as any).error) {
+                showToast(`❌ Erro: ${(result as any).error}`, "error");
+            } else if (result) {
+                setReceipt({
+                    ...result,
+                    fisherman: fishermen.find(f => f.id === fishermanId),
+                    groupedLandings: data.groupedLandings.map((l: any) => ({ ...l, price: prices[l.species] || 0 })),
+                    expenses: data.expenses.map((e: any) => ({ ...e, amount: expensesAmounts[e.id] })),
+                    dailySummary: data.dailySummary.map((day: any) => ({
+                        ...day,
+                        expenses: day.expenses.map((e: any) => ({ ...e, amount: expensesAmounts[e.id] }))
+                    }))
+                });
+                showToast("Fechamento realizado com sucesso!", "success");
+            }
+        } catch (error: any) {
+            console.error("Erro ao salvar fechamento:", error);
+            showToast(`❌ Falha ao salvar: ${error.message || "Erro desconhecido"}`, "error");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
 
@@ -134,7 +153,49 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
             finalY = (doc as any).lastAutoTable.finalY + 10;
         }
 
+        // Tabela Diária (Opcional, mas solicitada pelo usuário como Detalhamento)
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Detalhamento Diário (Entradas e Saídas)", 20, 20);
+
+        const dailyBody: any[] = [];
+        receipt.dailySummary.forEach((day: any) => {
+            const dateStr = new Date(day.date).toLocaleDateString();
+            
+            // Adiciona as entradas do dia
+            day.landings.forEach((l: any, idx: number) => {
+                dailyBody.push([
+                    idx === 0 ? dateStr : "",
+                    `Entrada: ${l.species}`,
+                    `${l.weight.toFixed(2)} kg`,
+                    "-"
+                ]);
+            });
+
+            // Adiciona as saídas (despesas) do dia
+            day.expenses.forEach((e: any) => {
+                dailyBody.push([
+                    "",
+                    `Saída: ${e.category}`,
+                    e.quantity ? `${e.quantity} kg` : "-",
+                    `R$ ${e.amount.toFixed(2)}`
+                ]);
+            });
+        });
+
+        autoTable(doc, {
+            startY: 30,
+            head: [["Data", "Descrição", "Qtd/Peso", "Valor"]],
+            body: dailyBody,
+            theme: 'grid',
+            headStyles: { fillColor: [50, 50, 50] }
+        });
+
+        finalY = (doc as any).lastAutoTable.finalY + 10;
+
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
         doc.text(`Total Bruto: R$ ${receipt.gross_total.toFixed(2)}`, 140, finalY, { align: "right" });
         doc.text(`Total Despesas: - R$ ${receipt.expenses_total.toFixed(2)}`, 140, finalY + 10, { align: "right" });
         doc.setFontSize(14);
@@ -183,21 +244,30 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                     </tbody>
                 </table>
 
-                {receipt.expenses.length > 0 && (
-                    <div style={{ marginTop: '15px' }}>
-                        <h3 style={{ borderBottom: '2px solid #000', fontSize: '13px', margin: '5px 0' }}>Despesas</h3>
-                        <table style={{ width: '100%', fontSize: '12px' }}>
-                            <tbody>
-                                {receipt.expenses.map((e: any) => (
-                                    <tr key={e.id}>
-                                        <td>{new Date(e.date).toLocaleDateString()} - {e.category} {e.quantity ? `(${e.quantity} kg)` : ''}</td>
-                                        <td align="right">- R$ {e.amount.toFixed(2)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <div style={{ marginTop: '20px' }}>
+                    <h3 style={{ borderBottom: '2px solid #000', fontSize: '13px', margin: '5px 0' }}>Detalhamento por Dia (Entrada e Saída)</h3>
+                    {receipt.dailySummary.map((day: any) => (
+                        <div key={day.date} style={{ marginBottom: '10px', borderBottom: '1px dashed #ccc', paddingBottom: '5px' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '12px' }}>Dia {new Date(day.date).toLocaleDateString()}</div>
+                            
+                            {/* Entradas */}
+                            {day.landings.map((l: any, i: number) => (
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', paddingLeft: '10px' }}>
+                                    <span>📥 {l.species}</span>
+                                    <span>{l.weight.toFixed(2)} kg</span>
+                                </div>
+                            ))}
+
+                            {/* Saídas */}
+                            {day.expenses.map((e: any, i: number) => (
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', paddingLeft: '10px', color: '#ff0000' }}>
+                                    <span>📤 {e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
+                                    <span>- R$ {e.amount.toFixed(2)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
 
                 <div style={{ marginTop: '15px', borderTop: '2px solid #000', paddingTop: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
@@ -368,6 +438,29 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                                 </div>
                             ))
                         )}
+                    </div>
+
+                    <div style={{ marginTop: '30px' }}>
+                        <h2 style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>Detalhamento por Dia (Entrada e Saída)</h2>
+                        {data.dailySummary.map((day: any) => (
+                            <div key={day.date} style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px' }}>
+                                <div style={{ fontWeight: 'bold', color: 'var(--accent-blue)', marginBottom: '8px' }}>Dia {new Date(day.date).toLocaleDateString()}</div>
+                                
+                                {day.landings.map((l: any, i: number) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '4px' }}>
+                                        <span>📥 {l.species}</span>
+                                        <span style={{ color: 'var(--text-secondary)' }}>{l.weight.toFixed(2)} kg</span>
+                                    </div>
+                                ))}
+
+                                {day.expenses.map((e: any, i: number) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '4px', color: 'var(--danger)' }}>
+                                        <span>📤 {e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
+                                        <span>- R$ {(expensesAmounts[e.id] ?? e.amount).toFixed(2)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
                     </div>
 
                     <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>

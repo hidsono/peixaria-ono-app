@@ -1,0 +1,98 @@
+﻿Embarcação|Pescador|RGP|CPF|Método
+Abel de Castro|Alexandre (Ratinho)|SP-0000477-8|344.402.409-68|Arrasto
+Abrigo dos reis|Valdemar|SC-0004895-0|248.782.048-93|Arrasto
+Aguia do Vale|Galo (Unaldo Nunes Valverde)|SP-0007114-1|825.624.745-20|Arrasto
+Águia dourada II|Bruno (Fome)|SP-0007112-9|133.336.068-10|Diversificada Costeira
+Alvorada|Jose Carlos de Jesus|SP-0012137-7|070.739.758-81|Emalhe costeiro 
+Amizade M-1|Neumi Ioldori Matias (Bi)|SC-0005146-9|055.368.38-05|Arrasto
+Ana Paula II|Eder Aparecido da Silva|SP-0007181-9|309.670.698-07|Arrasto
+Andreia|José Melentino|SP-0007198-9|518.319.029-15|Arrasto
+Artista|Eliete Maria do Nascimento Vieira Santos|SP-0007246-1|085.429.838-07|Arrasto
+Branca|Pedro Joaquim Nunes Filho ( Pedrinho)|SP-0007325-7|497.555.019-91|Arrasto
+Brazilian I|Genésio dos Santos(Serraria)|SP-0007336-5|000.961.818-00|Diversificada Costeira
+Cabral|Donizete José dos Santos|SC-0006671-0|070.739.298-55|Arrasto
+Camila|Denildon Benedito Silva Santos (Serraria)|SP-0009250-1|404.631.026-60|Arrasto
+Carmen Lucia I |Osvaldo Marques de Oliveira|SP-0007408-9|261.049.838-12|Arrasto
+Caroline I|Paulo Valdemar da Silva|SP-0007415-9|799.725.609-10|Arrasto
+Claudiana|Horácio de Oliveira|SP-0032593-7|161.634.178-52|Diversificada Costeira
+Claumar|Luiz Claudio Santos|SP-0022443-8|406.835.538-01|Diversificada Costeira
+Dama da Noite I|Samuel de Souza|SP-0031365-8|423.399.398-79|Diversificada Costeira
+Daniel 10|Gilberto Felisberto Pinheiro|SP-0032667-9|282.378.238-93|Diversificada Costeira
+Daniela Cris|Cristiano Tenório|SP-00058897-3||Arrasto
+Deus é Fiel|Janaína de Oliveira Santos|SP-0004939-0|296.002.878-30|Diversificada Costeira
+Deus é Fiel|Renan Paes|SP-0008762-0|415.941.958-54|Arrasto
+Dom Rafael I|Paulo Giovanni de Avila|SP-0007613-7|066.625.498-27|Arrasto
+Dom Rafael II|Gerci Cantalicio Rocha|SP-0007614-1|070.726.068-07|Arrasto
+EALO|João Melentino de Souza ( Hideo)|SP-0008186-4|377.091.199-72|Arrasto
+Elizangela III|Ci (Valdinei Valdeci da Silva)|SC-0007672-5|253.353.908-24|Arrasto
+Emanuel|Silvinho (Silvio Costa)|SP-0007683-1|053.404.918-46|Arrasto
+Eraldo P. Barbosa|Tulio Amaral Santos de Souza|SP-0004251-0|816.39.608-82|Emalhe costeiro 
+Esperança |Fernando de Souza Rangel|SP-0007696-5|389.263.538-26|Diversificada Costeira
+Esperança I|Arlindo de Souza|SP-0005004 -1|172.897.078-42|Emalhe costeiro 
+Estrela do Mar V|Joel dos Santos|SP-0000474-4|005.117.238-06|Arrasto
+Ezequiel|Sandro dos Santos Costa|SP-0007751-9|308.567.438-10|Arrasto
+Fortaleza II|Paulo Giovanni de Avila|SP-0016466-1|066.625.498-27|Emalhe costeiro 
+Freeway|Marcelo Fernando dos Santos (Bonete)|SP-0033012-8|155.129.198-30|Linha de mão (Fundo)
+Gabi|Jailton Tenório Teixeira|SP-0034241-9|433.251.628-19|Linha de mão (Fundo)
+Galapagos|Miro|SC-0005584-7|907.993.999-49|Arrasto
+Garopão|Marcio (Santos)|SP-1090299-6||
+Geovana|Paulo Boais Tavares|SP-0007860-7|318.676.758-03|Arrasto/Emalhe
+Gigante|Valmir Camilo dos Santos|SP-0007873-1|319.672.428-01|Arrasto
+Gustavo|Sadi Cantalicio Rocha|SP-0007947-7|032.811.508-88|Arrasto
+Herói da fé|Anderson (Rodolfo Costa Junior)|SP-0005382-7|304.945.618-31|Emalhe costeiro 
+Isabela|Marcio Rogerio do Espírito Santo|SP-0000531-0|255.142.368-02|Arrasto
+Jamevi|Nilton Jeronimo dos Santos Filho|SP-0007398-5|055.356.728-40|Arrasto
+Janaina IV|Benedito Camilo dos Santos|SP-0008086-8|276.429.138-85|Arrasto
+Jango Lengo|Valmir Clemente de Pinho|SP-0004344-8|190.524.388-03|Diversificada Costeira
+Jeremias II|Jorge Marques de Oliveira|SC-0007952-7|119.780.948-17|Arrasto/Lula
+Jessica Vitoria|Alexandre Rafael de Souza Romão|SP-00022938-4|371.793.788-01|Diversificada Costeira
+João paulo|Tulio Amaral Santos de Souza|SP-0005193-V1|351.607.948-92|Emalhe costeiro 
+Juca Sabia|Fabio Macri (Agata)|SP-0004975-6|273.204.398-24|Emalhe costeiro 
+Kaiaman|Durval dos Santos Costa|SP-0009346-7|150.254.878-03|Arrasto
+Leticia|Marcel Costa|SP-0000490-6|172.934.588-35|Arrasto
+Lord I|Lauro de Souza Lucio|SP-0004313-8|141.560.908-09|Diversificada Costeira
+Lua Comanche|Moises Nilton dos Santos|SP-0008465-4|665.789.499-68|Arrasto
+Luciana|Adriano Costa Tenório|SP-0009178-1|336.452.128-09|Arrasto
+Mar de Rosas|Arlim (Ana Terezinha Gomes)|SP-0009130-1|283.259.918-44|Arrasto
+Marião|Reginaldo Felix Silva de Amorim (ALEMÃO)|SC-0004164-8|045.024.569-18|Arrasto
+Marisol II|José Costa de Jesus|SP-0008969-0|255.425.438-98|Arrasto
+Mato Verde|Ricardo Martins|SC-0000772-4|898.450.059-34|Arrasto
+Mensageiro da Paz|Celia Justino Testa|SP-0000488-6|195.340.258-52|Arrasto
+Midasmar|Luis Teixeira Costa|SP-008713-4|070.741.178-54|Arrasto
+Mikaele|José Camilo dos Santos (Zeca)|SP-0000529-0|000.962.508-95|Arrasto
+Monte Horebe|Rogério dos Santos Junior|SP-0008733-8|190.524.938-12|Arrasto
+Moriá|Manoel Eupídio Serpa|PR-0008655-4|434.637.979-68|Arrasto
+Murilena|Isaias Leite Costa|SP-0033499-8|347.553.428-21|Linha de mão (Fundo)
+Naja IV|Pedro de Jesus Moreira|SP-0031117-6|200.008.638-15|Diversificada Costeira
+Não Tem Carona|Velácio de Oliveira|SP-0004256-0|276.718.488-40|Diversificada Costeira
+Natalia|Moises (Bonete)|SP-0031160-4|358.611.448-69|
+Nieves|Jeovani Teixeira Costa (Búzios)|SP-0019514-6|293.616.878-32|Diversificada Costeira
+Nova Esperança VII|Jaime Moreira da Silva Filho (Jaiminho)|SP-0019482-6|343.385.978-79|Emalhe costeiro 
+Pampo I|Pampo (Riberto da Ressureição)|SP-0014659-1|886.018.898-91|Diversificada Costeira
+Passione I|Gilmar de Jesus Oliveira (Buzios)|SP-0033354-6|365.728.048-01|Linha de mão (Fundo)
+Patriota|Marco Antonio Moraes Zanatta|SP-0019515-8|114.309.968-03|Diversificada Costeira
+Paz e Bem|Raphael Cliquet Luciano|SP-0007482-5|293.616.878-32|Arrasto/Lula
+Pirapema|Fernando Antônio Ibitinga|SP-0022261-0|728.597.768-34|Diversificada Costeira
+Porto da Toca|Marcelo Fernando dos Santos (Bonete)|SP-0031031-8|155.129.198-30|Diversificada Costeira
+Rafael II|Nerlindo Ioldori Matias (Lino)|SP-0000482-8|055.360.838-05|Arrasto
+Rei Davi|Mateus Quintino dos Santos|SP-0009050-7|252.191.288-33|Arrasto
+Rodmar III|Roberto Costa|SP-0003959-9|028.501.858-25|Arrasto
+Rosemeri|Pedro Paulo dos Santos Costa|SP-0000524-0|150.256.318-58|Arrasto
+Santiago ll|Adilson de Souza Cândido|SP-0009343-7|141.560.888-12|Arrasto
+Santo André II|Renato Henrique de Souza|SP-0009187-7|272.560.158-44|Arrasto
+Sereia da Ilha|Aureo Rafael de Souza|SP-0009219-7|339.558.388-03|Diversificada Costeira
+Shekinah|Almir (Evandro Rafael de Souza)|SP-0004260-8|150.255.658-80|Diversificada Costeira
+Solemar II|Du (Fernanda Aparecida de Souza Santos Guilherme)|SP-0008844-0|301.554.398-98|Arrasto
+Solemar lll|Valentim da Costa Oliveira|SP-0004262-8|055.891.568-07|Emalhe costeiro 
+Stallone|Nerildo Tomé da Silva|SP-0008301-0|501.916.169-15|Arrasto
+Suelen|Rauni (Adilson de Souza Cândido)|SP-0008295-8|141.560.888-12|Arrasto
+Thalita III|Manoel Euzebio de Moraes|SP-0021584-9|155.135.888-38|Linha de mão (Fundo)
+Tia Debora|Dito (Búzios)|SP-0008300-8|361.607.948-92|Arrasto
+Timão e Pumba|Fabinho (Jucélio João da Silva)|SC-0006219-8|797.728.109-68|Arrasto
+Um Sonho a Mais|Leleu (Marcelino de Souza)|SP-0005194-5|124.732.798-10|Diversificada Costeira
+Valentin|Renan Paes|SP-0016441-7|415.941.958-54|Diversificada Costeira
+Vania I |Irineu|SP-0013848-8|133.348.998-61|Diversificada Costeira
+Vinicius|Nei (Patrícia Valeria de Souza Guilherme)|SP-0008087-6|295.243.088-86|Arrasto
+|Venicio|SC-0031107-0||
+Tamares|Vagner Accica|SPPA01745090819|017.450.908-19|
+

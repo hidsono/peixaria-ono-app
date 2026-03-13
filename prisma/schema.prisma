@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Fisherman {
+  id          String       @id @default(cuid())
+  name        String
+  boat_name   String?
+  phone       String?
+  rgp         String?
+  cpf         String?
+  metodo      String?
+  landings    Landing[]
+  expenses    Expense[]
+  settlements Settlement[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   User?        @relation(fields: [createdById], references: [id])
+  createdById String?
+}
+
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String
+  name        String
+  role        String   @default("staff")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  landings    Landing[]
+  expenses    Expense[]
+  settlements Settlement[]
+  fishermen   Fisherman[]
+}
+
+model Landing {
+  id          String    @id @default(cuid())
+  date        DateTime  @default(now())
+  species     String
+  weight_kg   Float
+  fishermanId String
+  fisherman   Fisherman @relation(fields: [fishermanId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  createdById String?
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  date        DateTime  @default(now())
+  category    String
+  amount      Float
+  quantity    Float?
+  notes       String?
+  fishermanId String
+  fisherman   Fisherman @relation(fields: [fishermanId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  createdById String?
+}
+
+model Settlement {
+  id             String    @id @default(cuid())
+  date           DateTime  @default(now())
+  start_date     DateTime
+  end_date       DateTime
+  gross_total    Float
+  expenses_total Float
+  net_total      Float
+  fishermanId    String
+  fisherman      Fisherman @relation(fields: [fishermanId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   User?        @relation(fields: [createdById], references: [id])
+  createdById String?
+}
+
+model NotificationRecipient {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

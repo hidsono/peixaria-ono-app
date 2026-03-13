@@ -1,0 +1,262 @@
+:root {
+  --primary-navy: #001f3f;
+  --secondary-navy: #003366;
+  --bg-dark: #0a192f;
+  --card-bg: #112240;
+  --text-primary: #e6f1ff;
+  --text-secondary: #8892b0;
+  --accent-blue: #00d4ff;
+  --accent-hover: #00b4d8;
+  --danger: #ff4d4d;
+  --success: #00ff88;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--border-radius);
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+input,
+select,
+textarea {
+  background: var(--card-bg);
+  border: 1px solid var(--secondary-navy);
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: var(--border-radius);
+  font-family: inherit;
+  font-size: 16px;
+  width: 100%;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* Layout Containers */
+.container {
+  max-width: 600px;
+  /* Mobile focused */
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 100px;
+  /* Space for bottom nav */
+}
+
+/* Typography */
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+/* Components */
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--primary-navy);
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 0;
+  border-top: 1px solid var(--secondary-navy);
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 10px;
+  gap: 5px;
+}
+
+.nav-item.active {
+  color: var(--accent-blue);
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: var(--bg-dark);
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.main-header {
+  background: var(--primary-navy);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--secondary-navy);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout-btn {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.logout-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Print Utilities (Optimized for 80mm Thermal Printers) */
+@media print {
+  @page {
+    margin: 3mm;
+    size: 80mm auto;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: #000 !important;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container {
+    padding: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .main-header,
+  .bottom-nav,
+  .btn-primary,
+  button,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-receipt {
+    background: white !important;
+    color: #000 !important;
+    padding: 1mm !important;
+    border: none !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    width: 100% !important;
+    max-width: 76mm !important;
+    font-size: 11pt !important;
+    font-weight: 700 !important; /* Força negrito para melhor legibilidade térmica */
+    line-height: 1.1;
+    page-break-after: auto;
+  }
+
+  .print-receipt h2, 
+  .print-receipt h3 {
+    font-size: 14pt !important;
+    font-weight: 900 !important;
+    margin: 0 0 1mm 0 !important;
+    text-transform: uppercase;
+  }
+
+  .print-receipt p,
+  .print-receipt th,
+  .print-receipt td,
+  .print-receipt strong {
+    font-size: 10pt !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+  }
+
+  .print-receipt table {
+    width: 100% !important;
+    border-collapse: collapse;
+  }
+
+  .print-receipt table th,
+  .print-receipt table td {
+    border-bottom: 0.5pt solid #000 !important; /* Linhas mais finas mas sólidas */
+    padding: 1mm 0;
+  }
+}
+
+.print-only {
+  display: none;
+}

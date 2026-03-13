@@ -16,6 +16,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
     const [data, setData] = useState<any>(null);
     const [prices, setPrices] = useState<Record<string, number>>({});
     const [expensesAmounts, setExpensesAmounts] = useState<Record<string, number>>({});
+    const [expensePrices, setExpensePrices] = useState<Record<string, number>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [receipt, setReceipt] = useState<any>(null);
 
@@ -24,6 +25,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
         const result = await getSettlementData(fishermanId, startDate, endDate);
         setData(result);
         setPrices({});
+        setExpensePrices({});
 
         // Inicializa os valores das despesas com os valores originais do banco
         const initialExpenses: Record<string, number> = {};
@@ -420,23 +422,51 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                         {data.expenses.length === 0 ? (
                             <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Nenhuma despesa no período.</p>
                         ) : (
-                            data.expenses.map((e: any) => (
-                                <div key={e.id} style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,0,0,0.05)', padding: '10px', borderRadius: '6px' }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} - <strong>{e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
-                                        {e.notes && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{e.notes}</div>}
+                            data.expenses.map((e: any) => {
+                                const isFish = e.category === "Pescado" && e.quantity > 0;
+                                return (
+                                    <div key={e.id} style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isFish ? 'rgba(0,150,255,0.05)' : 'rgba(255,0,0,0.05)', padding: '10px', borderRadius: '6px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} - <strong>{e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
+                                            {e.notes && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{e.notes}</div>}
+                                        </div>
+                                        
+                                        {isFish ? (
+                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                <div style={{ width: '80px' }}>
+                                                    <label style={{ fontSize: '9px', display: 'block' }}>R$/kg</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="Preço"
+                                                        value={expensePrices[e.id] ?? ""}
+                                                        onChange={(ev) => {
+                                                            const p = parseFloat(ev.target.value) || 0;
+                                                            setExpensePrices({ ...expensePrices, [e.id]: p });
+                                                            setExpensesAmounts({ ...expensesAmounts, [e.id]: p * e.quantity });
+                                                        }}
+                                                        style={{ padding: '6px', fontSize: '12px' }}
+                                                    />
+                                                </div>
+                                                <div style={{ width: '80px', textAlign: 'right' }}>
+                                                    <label style={{ fontSize: '9px', display: 'block' }}>Total</label>
+                                                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>R$ {(expensesAmounts[e.id] || 0).toFixed(2)}</div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div style={{ width: '100px' }}>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={expensesAmounts[e.id] ?? ""}
+                                                    onChange={(ev) => setExpensesAmounts({ ...expensesAmounts, [e.id]: parseFloat(ev.target.value) || 0 })}
+                                                    style={{ padding: '6px', fontSize: '14px', border: '1px solid rgba(255,0,0,0.2)' }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-                                    <div style={{ width: '100px' }}>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={expensesAmounts[e.id] ?? ""}
-                                            onChange={(ev) => setExpensesAmounts({ ...expensesAmounts, [e.id]: parseFloat(ev.target.value) || 0 })}
-                                            style={{ padding: '6px', fontSize: '14px', border: '1px solid rgba(255,0,0,0.2)' }}
-                                        />
-                                    </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
 

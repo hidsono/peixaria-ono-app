@@ -21,10 +21,10 @@ export default function SettingsClient({ initialRecipients }: { initialRecipient
             formData.append("name", name);
             formData.append("phone", phone);
             
-            const result = await addRecipient(formData);
-            if (result.error) {
+            const result: any = await addRecipient(formData);
+            if (result && result.error) {
                 showToast(result.error, "error");
-            } else {
+            } else if (result) {
                 setRecipients([...recipients, result]);
                 setName("");
                 setPhone("");

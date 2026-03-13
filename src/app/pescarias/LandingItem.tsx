@@ -39,7 +39,7 @@ export default function LandingItem({ landing }: { landing: any }) {
             <div>
                 <div style={{ fontWeight: '600' }}>{landing.species}</div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                    {landing.fisherman.name} - {new Date(landing.date).toLocaleDateString('pt-BR')}
+                    {landing.fisherman.name} - {new Date(landing.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                 </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

@@ -15,7 +15,7 @@ export async function notifyNewRecord(type: 'pescaria' | 'despesa', details: any
                       `👤 *Pescador:* ${fisherman?.name || 'Não identificado'}\n` +
                       `⛵ *Barco:* ${fisherman?.boat_name || '-'}\n` +
                       `🐟 *Entradas:* ${details.landings.map((l: any) => `\n   - ${l.species}: ${l.weight_kg}kg`).join('')}\n` +
-                      `📅 *Data:* ${new Date(details.date).toLocaleDateString('pt-BR')}`;
+                      `📅 *Data:* ${new Date(details.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`;
             
             if (details.expenses && details.expenses.length > 0) {
                 message += `\n\n💸 *Despesas:* ${details.expenses.map((e: any) => `\n   - ${e.category}: R$ ${e.amount.toFixed(2)}${e.quantity ? ` (${e.quantity}kg)` : ''}`).join('')}`;
@@ -29,7 +29,7 @@ export async function notifyNewRecord(type: 'pescaria' | 'despesa', details: any
                        `💰 *Valor:* R$ ${details.amount.toFixed(2)}\n` +
                        (details.quantity ? `⚖️ *Qtd:* ${details.quantity}kg\n` : '') +
                        (details.notes ? `📝 *Obs:* ${details.notes}\n` : '') +
-                       `📅 *Data:* ${new Date(details.date).toLocaleDateString('pt-BR')}`;
+                       `📅 *Data:* ${new Date(details.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`;
         }
 
         console.log("NOTIFICAÇÃO PARA ENVIAR:", message);

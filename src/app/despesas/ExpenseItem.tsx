@@ -49,7 +49,7 @@ export default function ExpenseItem({ expense }: { expense: any }) {
             <div>
                 <div style={{ fontWeight: '600' }}>{expense.category}</div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                    {expense.fisherman?.name || 'Pescador não encontrado'} - {new Date(expense.date).toLocaleDateString('pt-BR')}
+                    {expense.fisherman?.name || 'Pescador não encontrado'} - {new Date(expense.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     {expense.notes && <div style={{ fontStyle: 'italic' }}>{expense.notes}</div>}
                 </div>
             </div>

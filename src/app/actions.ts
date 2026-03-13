@@ -147,7 +147,9 @@ export async function createLanding(formData: FormData) {
     const fishermanId = formData.get("fishermanId") as string;
     const species = formData.get("species") as string;
     const weight_kg = parseFloat(formData.get("weight_kg") as string);
-    const date = new Date(formData.get("date") as string);
+    // Ajuste de fuso horário: garante que a data seja salva no meio do dia UTC
+    const dateStr = formData.get("date") as string;
+    const date = new Date(`${dateStr}T12:00:00Z`);
 
     await prisma.landing.create({
         data: { fishermanId, species, weight_kg, date, createdById: user.id },
@@ -167,7 +169,8 @@ export async function deleteLanding(id: string) {
 export async function updateLanding(id: string, formData: FormData) {
     const species = formData.get("species") as string;
     const weight_kg = parseFloat(formData.get("weight_kg") as string);
-    const date = new Date(formData.get("date") as string);
+    const dateStr = formData.get("date") as string;
+    const date = new Date(`${dateStr}T12:00:00Z`);
 
     await prisma.landing.update({
         where: { id },
@@ -189,7 +192,8 @@ export async function createExpense(formData: FormData) {
     const quantityRaw = formData.get("quantity") as string;
     const quantity = quantityRaw ? parseFloat(quantityRaw.replace(',', '.')) : null;
     const notes = formData.get("notes") as string;
-    const date = new Date(formData.get("date") as string);
+    const dateStr = formData.get("date") as string;
+    const date = new Date(`${dateStr}T12:00:00Z`);
 
     await prisma.expense.create({
         data: { fishermanId, category, amount, quantity, notes, date, createdById: user.id },
@@ -209,7 +213,8 @@ export async function updateExpense(id: string, formData: FormData) {
     const category = formData.get("category") as string;
     const amount = parseFloat(formData.get("amount") as string);
     const notes = formData.get("notes") as string;
-    const date = new Date(formData.get("date") as string);
+    const dateStr = formData.get("date") as string;
+    const date = new Date(`${dateStr}T12:00:00Z`);
 
     await prisma.expense.update({
         where: { id },
@@ -230,7 +235,7 @@ export async function createUnifiedTicket(data: {
     if (!user) throw new Error("Acesso negado.");
 
     const { fishermanId, date, landings, expenses } = data;
-    const ticketDate = new Date(date);
+    const ticketDate = new Date(`${date}T12:00:00Z`);
 
     await prisma.$transaction(async (tx) => {
         for (const l of landings) {

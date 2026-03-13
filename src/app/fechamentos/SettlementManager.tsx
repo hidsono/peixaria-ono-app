@@ -110,7 +110,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
         doc.setFontSize(12);
         doc.text(`Pescador: ${receipt.fisherman.name}`, 20, 40);
         doc.text(`Barco: ${receipt.fisherman.boat_name}`, 20, 50);
-        doc.text(`Período: ${new Date(receipt.start_date).toLocaleDateString()} a ${new Date(receipt.end_date).toLocaleDateString()}`, 20, 60);
+        doc.text(`Período: ${new Date(receipt.start_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} a ${new Date(receipt.end_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`, 20, 60);
 
         // Tabela de Pescados
         const bodyLandings = receipt.groupedLandings.map((l: any) => [
@@ -136,7 +136,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
             doc.text("Detalhamento de Despesas", 20, finalY);
 
             const bodyExpenses = receipt.expenses.map((e: any) => [
-                new Date(e.date).toLocaleDateString(),
+                new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
                 e.category + (e.quantity ? ` (${e.quantity} kg)` : ''),
                 e.notes || "-",
                 `R$ ${e.amount.toFixed(2)}`
@@ -161,7 +161,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
 
         const dailyBody: any[] = [];
         receipt.dailySummary.forEach((day: any) => {
-            const dateStr = new Date(day.date).toLocaleDateString();
+            const dateStr = new Date(day.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
             
             // Adiciona as entradas do dia
             day.landings.forEach((l: any, idx: number) => {
@@ -220,7 +220,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                 <div style={{ borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '5px 0', margin: '10px 0' }}>
                     <p style={{ margin: '2px 0' }}><strong>Pescador:</strong> {receipt.fisherman.name}</p>
                     <p style={{ margin: '2px 0' }}><strong>Barco:</strong> {receipt.fisherman.boat_name || "-"}</p>
-                    <p style={{ margin: '2px 0' }}><strong>Período:</strong> {new Date(receipt.start_date).toLocaleDateString()} a {new Date(receipt.end_date).toLocaleDateString()}</p>
+                    <p style={{ margin: '2px 0' }}><strong>Período:</strong> {new Date(receipt.start_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} a {new Date(receipt.end_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                 </div>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -248,7 +248,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                     <h3 style={{ borderBottom: '2px solid #000', fontSize: '13px', margin: '5px 0' }}>Detalhamento por Dia (Entrada e Saída)</h3>
                     {receipt.dailySummary.map((day: any) => (
                         <div key={day.date} style={{ marginBottom: '10px', borderBottom: '1px dashed #ccc', paddingBottom: '5px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '12px' }}>Dia {new Date(day.date).toLocaleDateString()}</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '12px' }}>Dia {new Date(day.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div>
                             
                             {/* Entradas */}
                             {day.landings.map((l: any, i: number) => (
@@ -423,7 +423,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                             data.expenses.map((e: any) => (
                                 <div key={e.id} style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,0,0,0.05)', padding: '10px', borderRadius: '6px' }}>
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString()} - <strong>{e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
+                                        <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} - <strong>{e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
                                         {e.notes && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{e.notes}</div>}
                                     </div>
                                     <div style={{ width: '100px' }}>
@@ -444,7 +444,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                         <h2 style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>Detalhamento por Dia (Entrada e Saída)</h2>
                         {data.dailySummary.map((day: any) => (
                             <div key={day.date} style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px' }}>
-                                <div style={{ fontWeight: 'bold', color: 'var(--accent-blue)', marginBottom: '8px' }}>Dia {new Date(day.date).toLocaleDateString()}</div>
+                                <div style={{ fontWeight: 'bold', color: 'var(--accent-blue)', marginBottom: '8px' }}>Dia {new Date(day.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div>
                                 
                                 {day.landings.map((l: any, i: number) => (
                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '4px' }}>

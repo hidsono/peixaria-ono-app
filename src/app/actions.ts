@@ -115,7 +115,7 @@ export async function register(prevState: any, formData: FormData) {
 export async function getFishermen() {
     return await prisma.fisherman.findMany({
         orderBy: { name: "asc" },
-        include: { createdBy: true }
+        include: { createdBy: true, certificate: true }
     });
 }
 
@@ -129,10 +129,22 @@ export async function createFisherman(formData: FormData) {
     const phone = formData.get("phone") as string;
     const rgp = formData.get("rgp") as string;
     const cpf = formData.get("cpf") as string;
+    const cnpj = formData.get("cnpj") as string;
+    const inscricaoEstadual = formData.get("inscricaoEstadual") as string;
     const metodo = formData.get("metodo") as string;
 
     await prisma.fisherman.create({
-        data: { name, boat_name, phone, rgp, cpf, metodo, createdById: user.id },
+        data: { 
+            name, 
+            boat_name, 
+            phone, 
+            rgp, 
+            cpf, 
+            cnpj, 
+            inscricaoEstadual, 
+            metodo, 
+            createdById: user.id 
+        },
     });
 
     revalidatePath("/pescadores");
@@ -228,7 +240,7 @@ export async function updateExpense(id: string, formData: FormData) {
 export async function createUnifiedTicket(data: {
     fishermanId: string;
     date: string;
-    landings: { species: string; weight_kg: number }[];
+    landings: { species: string; weight_kg: number; productId?: string }[];
     expenses: { category: string; amount: number; quantity?: number; notes?: string }[];
 }) {
     const user = await getCurrentUser();
@@ -239,6 +251,7 @@ export async function createUnifiedTicket(data: {
 
     await prisma.$transaction(async (tx) => {
         for (const l of landings) {
+            // 1. Criar Registro de Landing (Legado/Relatórios)
             await tx.landing.create({
                 data: {
                     fishermanId,
@@ -248,7 +261,32 @@ export async function createUnifiedTicket(data: {
                     createdById: user.id
                 }
             });
+
+            // 2. Criar Lote de Inventário (Novo motor de estoque)
+            const batch = await tx.inventoryBatch.create({
+                data: {
+                    species: l.species,
+                    productId: l.productId,
+                    initialWeight_kg: l.weight_kg,
+                    currentWeight_kg: l.weight_kg,
+                    propertyType: 'TERCEIROS',
+                    fishermanId: fishermanId,
+                    entryCfop: '5.905'
+                }
+            });
+
         }
+
+        // 3. Agendar Evento Fiscal ÚNICO para o Ticket (Remessa para Depósito)
+        await (tx as any).fiscalEvent.create({
+            data: {
+                fishermanId,
+                eventType: 'REMESSA_DEPOSITO',
+                cfop: '5.905',
+                status: 'PENDENTE',
+            }
+        });
+
         for (const e of expenses) {
             await tx.expense.create({
                 data: {
@@ -264,11 +302,8 @@ export async function createUnifiedTicket(data: {
         }
     });
 
-    await notifyNewRecord('pescaria', data);
-
     revalidatePath("/pescarias");
-    revalidatePath("/despesas");
-    revalidatePath("/fechamentos");
+    revalidatePath("/pdv");
 
     return { success: true };
 }
@@ -283,6 +318,61 @@ export async function getSpeciesSuggestions() {
     return species.map(s => s.species);
 }
 
+// Product Actions
+export async function getProducts() {
+    return await prisma.product.findMany({
+        orderBy: { name: "asc" }
+    });
+}
+
+export async function createProduct(formData: FormData) {
+    const name = formData.get("name") as string;
+    const ncm = formData.get("ncm") as string;
+    const cest = formData.get("cest") as string;
+    const barcode = formData.get("barcode") as string;
+    const defaultPriceRaw = formData.get("defaultPrice") as string;
+    const defaultPrice = defaultPriceRaw ? parseFloat(defaultPriceRaw.replace(',', '.')) : null;
+
+    if (!name) throw new Error("O nome da espécie é obrigatório.");
+
+    await prisma.product.create({
+        data: {
+            name,
+            ncm: ncm || null,
+            cest: cest || null,
+            barcode: barcode || null,
+            defaultPrice: defaultPrice || null
+        }
+    });
+
+    revalidatePath("/produtos");
+}
+
+export async function deleteProduct(id: string) {
+    await prisma.product.delete({ where: { id } });
+    revalidatePath("/produtos");
+}
+
+export async function updateProduct(id: string, formData: FormData) {
+    const ncm = formData.get("ncm") as string;
+    const cest = formData.get("cest") as string;
+    const barcode = formData.get("barcode") as string;
+    const defaultPriceRaw = formData.get("defaultPrice") as string;
+    const defaultPrice = defaultPriceRaw ? parseFloat(defaultPriceRaw.replace(',', '.')) : null;
+
+    await prisma.product.update({
+        where: { id },
+        data: {
+            ncm: ncm || null,
+            cest: cest || null,
+            barcode: barcode || null,
+            defaultPrice: defaultPrice || null
+        }
+    });
+
+    revalidatePath("/produtos");
+}
+
 // Temporary: First user creation helper (only for setup)
 export async function createFirstUser() {
     const existing = await prisma.user.count();
@@ -295,5 +385,32 @@ export async function createFirstUser() {
             name: "Administrador"
         }
     });
+}
+
+export async function saveFishermanCertificate(data: {
+    fishermanId: string;
+    certBase64: string;
+    password: string;
+    validUntil: string;
+}) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Acesso negado.");
+
+    await (prisma as any).fishermanCertificate.upsert({
+        where: { fishermanId: data.fishermanId },
+        update: {
+            certUrlOuRef: data.certBase64,
+            passwordHash: data.password,
+            validUntil: new Date(data.validUntil)
+        },
+        create: {
+            fishermanId: data.fishermanId,
+            certUrlOuRef: data.certBase64,
+            passwordHash: data.password,
+            validUntil: new Date(data.validUntil)
+        }
+    });
+
+    revalidatePath("/pescadores");
 }
 

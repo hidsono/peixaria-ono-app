@@ -6,10 +6,17 @@ export default async function SettingsPage() {
         orderBy: { name: 'asc' }
     });
 
+    const fiscalConfig = await (prisma as any).globalFiscalConfig.findUnique({
+        where: { id: 'global' }
+    });
+
     return (
-        <div>
-            <h1>Configurações</h1>
-            <SettingsClient initialRecipients={recipients} />
+        <div className="p-4 max-w-4xl mx-auto space-y-8">
+            <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-tight">Ajustes do Sistema</h1>
+            <SettingsClient 
+                initialRecipients={recipients} 
+                initialFiscalConfig={fiscalConfig}
+            />
         </div>
     );
 }

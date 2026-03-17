@@ -6,12 +6,12 @@ import LandingHistory from "./LandingHistory";
 
 export default function PescariasClient({ 
     fishermen, 
-    speciesSuggestions, 
+    products, 
     allLandings, 
     allExpenses 
 }: { 
     fishermen: any[], 
-    speciesSuggestions: string[], 
+    products: any[], 
     allLandings: any[], 
     allExpenses: any[] 
 }) {
@@ -53,7 +53,7 @@ export default function PescariasClient({
             </div>
 
             {activeTab === 'entry' ? (
-                <UnifiedEntryForm fishermen={fishermen} speciesSuggestions={speciesSuggestions} />
+                <UnifiedEntryForm fishermen={fishermen} products={products} />
             ) : (
                 <LandingHistory landings={allLandings} expenses={allExpenses} />
             )}

@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { getFishermen, createFisherman } from "../actions";
+import CertificateManager from "./CertificateManager";
 
 export default async function Pescadores() {
     const fishermen = await getFishermen();
@@ -32,14 +33,24 @@ export default async function Pescadores() {
                             <input type="text" name="cpf" placeholder="000.000.000-00" />
                         </div>
                         <div className="form-group">
-                            <label>Telefone</label>
-                            <input type="tel" name="phone" placeholder="(21) 99999-9999" />
+                            <label>CNPJ (Produtor)</label>
+                            <input type="text" name="cnpj" placeholder="00.000.000/0000-00" />
                         </div>
                     </div>
 
-                    <div className="form-group" style={{ marginTop: '10px' }}>
-                        <label>Método de Pesca</label>
-                        <input type="text" name="metodo" placeholder="Ex: Arrasto, Emalhe..." />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginTop: '10px' }}>
+                        <div className="form-group">
+                            <label>Inscrição Estadual</label>
+                            <input type="text" name="inscricaoEstadual" placeholder="Isento ou Número" />
+                        </div>
+                        <div className="form-group">
+                            <label>Telefone</label>
+                            <input type="tel" name="phone" placeholder="(11) 99999-9999" />
+                        </div>
+                        <div className="form-group">
+                            <label>Método de Pesca</label>
+                            <input type="text" name="metodo" placeholder="Ex: Arrasto, Emalhe..." />
+                        </div>
                     </div>
 
                     <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '15px' }}>Salvar Pescador</button>
@@ -60,8 +71,16 @@ export default async function Pescadores() {
                                 {f.metodo && <div style={{ color: '#666', fontSize: '14px' }}>🎣 <strong>Método:</strong> {f.metodo}</div>}
                                 {f.rgp && <div style={{ fontSize: '13px' }}>🆔 <strong>RGP:</strong> {f.rgp}</div>}
                                 {f.cpf && <div style={{ fontSize: '13px' }}>📄 <strong>CPF:</strong> {f.cpf}</div>}
+                                {f.cnpj && <div style={{ fontSize: '13px' }}>🏢 <strong>CNPJ:</strong> {f.cnpj}</div>}
+                                {f.inscricaoEstadual && <div style={{ fontSize: '13px' }}>🏛️ <strong>IE:</strong> {f.inscricaoEstadual}</div>}
                                 {f.phone && <div style={{ fontSize: '13px' }}>📞 <strong>Tel:</strong> {f.phone}</div>}
                             </div>
+
+                            <CertificateManager 
+                                fishermanId={f.id} 
+                                fishermanName={f.name} 
+                                existingCert={f.certificate} 
+                            />
 
                             {f.createdBy && (
                                 <div style={{

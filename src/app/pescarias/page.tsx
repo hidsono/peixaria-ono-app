@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
 import PescariasClient from "./PescariasClient";
-import { getSpeciesSuggestions } from "../actions";
+import { getProducts } from "../actions";
 
 export default async function Pescarias() {
     const fishermen = await prisma.fisherman.findMany({ orderBy: { name: 'asc' } });
-    const speciesSuggestions = await getSpeciesSuggestions();
+    const products = await getProducts();
     
     const allLandings = await prisma.landing.findMany({
         orderBy: { date: 'desc' },
@@ -19,12 +19,12 @@ export default async function Pescarias() {
     return (
         <div>
             <div className="no-print">
-                <h1>Pescarias & Controle</h1>
+                <h1 className="text-2xl font-black italic tracking-tighter uppercase mb-6">Pescarias & Controle</h1>
             </div>
 
             <PescariasClient 
                 fishermen={fishermen} 
-                speciesSuggestions={speciesSuggestions}
+                products={products}
                 allLandings={allLandings}
                 allExpenses={allExpenses}
             />

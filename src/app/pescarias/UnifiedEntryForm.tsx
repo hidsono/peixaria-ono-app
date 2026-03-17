@@ -3,34 +3,22 @@
 import { useState, useRef } from "react";
 import { createUnifiedTicket } from "../actions";
 import { useNotification } from "../NotificationContext";
+import Link from "next/link";
 
-export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }: { fishermen: any[], speciesSuggestions?: string[] }) {
+export default function UnifiedEntryForm({ fishermen, products = [] }: { fishermen: any[], products?: any[] }) {
     const { showToast } = useNotification();
     const [fishermanId, setFishermanId] = useState("");
     const [fishermanSearch, setFishermanSearch] = useState("");
     const [showFishermanList, setShowFishermanList] = useState(false);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-    // Novas sugestões aprendidas na sessão atual
-    const [sessionSuggestions, setSessionSuggestions] = useState<string[]>([]);
-
-    // Combina sugestões de forma compatível com navegadores antigos
-    const combineSuggestions = () => {
-        var combined = speciesSuggestions.concat(sessionSuggestions);
-        var unique = [];
-        for (var i = 0; i < combined.length; i++) {
-            if (unique.indexOf(combined[i]) === -1) {
-                unique.push(combined[i]);
-            }
-        }
-        return unique.sort();
-    };
-    const allSuggestions = combineSuggestions();
-
     // Landings Cart
-    const [landings, setLandings] = useState<{ species: string, weight_kg: number }[]>([]);
+    const [landings, setLandings] = useState<{ species: string, weight_kg: number, productId?: string, ncm?: string }[]>([]);
     const [tempSpecies, setTempSpecies] = useState("");
     const [tempWeight, setTempWeight] = useState("");
+
+    // Encontra o produto selecionado para mostrar o NCM
+    const selectedProduct = products.find(p => p.name === tempSpecies);
 
     // Expenses Cart
     const [expenses, setExpenses] = useState<{ category: string, amount: number, quantity?: number, notes: string }[]>([]);
@@ -134,17 +122,16 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
             return;
         }
 
-        var newLanding = { species: species, weight_kg: parseFloat(weightRaw) };
+        const product = products.find(p => p.name === species);
+
+        var newLanding = { 
+            species: species, 
+            weight_kg: parseFloat(weightRaw),
+            productId: product?.id,
+            ncm: product?.ncm
+        };
         setLandings(landings.concat([newLanding]));
         
-        var found = false;
-        for (var i = 0; i < allSuggestions.length; i++) {
-            if (allSuggestions[i] === species) found = true;
-        }
-        if (!found) {
-            setSessionSuggestions(sessionSuggestions.concat([species]));
-        }
-
         setTempSpecies("");
         setTempWeight("");
     };
@@ -153,18 +140,22 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
         if (e && e.preventDefault) e.preventDefault();
 
         var amountRaw = (tempAmount || "0").trim().replace(',', '.');
+        var notesProcessed = (tempNotes || "").trim();
         
         // Se for pescado, a espécie é obrigatória
-        if (tempCategory === "Pescado" && !tempNotes) {
-            showToast("⚠️ Digite o nome do pescado", "warning");
-            return;
+        if (tempCategory === "Pescado") {
+            if (!notesProcessed) {
+                showToast("⚠️ Digite a espécie do pescado", "warning");
+                return;
+            }
+            notesProcessed = notesProcessed.charAt(0).toUpperCase() + notesProcessed.slice(1);
         }
 
         var newExpense = { 
             category: tempCategory, 
             amount: parseFloat(amountRaw) || 0, 
             quantity: tempQty ? parseFloat(tempQty.replace(',', '.')) : undefined,
-            notes: (tempNotes || "").trim() 
+            notes: notesProcessed 
         };
         setExpenses(expenses.concat([newExpense]));
         setTempAmount("");
@@ -183,7 +174,13 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
 
         // Tenta adicionar o que estiver nos campos temporários
         if (tempSpecies && tempWeight) {
-            finalLandings.push({ species: tempSpecies, weight_kg: parseFloat(tempWeight.replace(',', '.')) });
+            const product = products.find(p => p.name === tempSpecies);
+            finalLandings.push({ 
+                species: tempSpecies, 
+                weight_kg: parseFloat(tempWeight.replace(',', '.')),
+                productId: product?.id,
+                ncm: product?.ncm
+            });
         }
         if (tempAmount) {
             var qtyRaw = tempQty ? parseFloat(tempQty.replace(',', '.')) : undefined;
@@ -257,8 +254,10 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
             message += "*PESCADOS:*%0A";
             for (var i = 0; i < lastTicket.landings.length; i++) {
                 var l = lastTicket.landings[i];
-                message += "- " + l.species + ": " + l.weight_kg.toFixed(2) + " kg%0A";
+                var ncmStr = l.ncm ? " [NCM: " + l.ncm + "]" : "";
+                message += "- " + l.species + ncmStr + ": " + l.weight_kg.toFixed(2) + " kg%0A";
             }
+            message += "%0ACFOP Entrada: 5.905 (Remessa para Depósito)%0A";
             message += "%0A";
         }
 
@@ -307,14 +306,20 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
 
                 {lastTicket.landings.length > 0 && (
                     <div style={{ marginBottom: '5mm' }}>
-                        <p style={{ fontWeight: 'bold', borderBottom: '1px solid #000', marginBottom: '1mm' }}>PESCADOS</p>
+                        <p style={{ fontWeight: 'bold', borderBottom: '1px solid #000', marginBottom: '1mm', display: 'flex', justifyContent: 'space-between' }}>
+                            <span>PESCADOS</span>
+                            <span style={{ fontSize: '9px' }}>CFOP: 5.905</span>
+                        </p>
                         <table style={{ width: '100%', fontSize: '12px' }}>
                             <tbody>
                                 {lastTicket.landings.map(function(l: any, i: number) {
                                     return (
                                         <tr key={i}>
-                                            <td>{l.species}</td>
-                                            <td align="right">{l.weight_kg.toFixed(2)} kg</td>
+                                            <td>
+                                                {l.species}
+                                                {l.ncm && <div style={{ fontSize: '8px', opacity: 0.7 }}>NCM: {l.ncm}</div>}
+                                            </td>
+                                            <td align="right" valign="top">{l.weight_kg.toFixed(2)} kg</td>
                                         </tr>
                                     );
                                 })}
@@ -355,15 +360,18 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
     return (
         <>
             <datalist id="species-list">
-                {allSuggestions.map((s) => (
-                    <option key={s} value={s} />
+                {products.map((p) => (
+                    <option key={p.id} value={p.name} />
                 ))}
             </datalist>
 
             <div className="no-print">
                 <div className="card" style={{ border: '2px solid #00d4ff', backgroundColor: '#112240' }}>
-                    <div style={{ marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                         <h2 style={{ margin: 0 }}>Novo Ticket</h2>
+                        <Link href="/produtos" className="text-[10px] text-emerald-400 font-black uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">
+                             📦 Cadastro de Pescados (NCM)
+                        </Link>
                     </div>
                     <div className="form-group" style={{ position: 'relative' }}>
                         <label>Pescador / Barco</label>
@@ -470,26 +478,35 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
                     <div style={{ borderTop: '1px solid #333', paddingTop: '15px', marginTop: '15px' }}>
                         <h3 style={{ fontSize: '16px', color: '#00d4ff', marginBottom: '10px' }}>🎣 Adicionar Pescados</h3>
                         <div style={{ width: '100%' }}>
-                            <input
-                                type="text"
-                                placeholder="Espécie"
-                                value={tempSpecies}
-                                onChange={(e) => setTempSpecies(e.target.value || "")}
-                                style={{ width: '50%', height: '50px', float: 'left', marginRight: '5px' }}
-                                list="species-list"
-                            />
+                            <div style={{ position: 'relative', width: '50%', float: 'left', marginRight: '5px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Espécie"
+                                    value={tempSpecies}
+                                    onChange={(e) => setTempSpecies(e.target.value || "")}
+                                    style={{ width: '100%', height: '50px' }}
+                                    list="species-list"
+                                />
+                                {selectedProduct && selectedProduct.ncm && (
+                                    <div className="absolute top-1 right-2 pointer-events-none">
+                                        <span className="text-[8px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-1 rounded font-mono">
+                                            NCM: {selectedProduct.ncm}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                             <input
                                 type="text"
                                 placeholder="kg"
                                 value={tempWeight}
                                 onChange={(e) => setTempWeight((e.target.value || "").replace(',', '.'))}
-                                style={{ width: '20%', height: '50px', float: 'left', marginRight: '5px' }}
+                                style={{ width: '25%', height: '50px', float: 'left', marginRight: '5px' }}
                             />
                             <button
                                 type="button"
                                 onClick={addLanding}
                                 style={{
-                                    width: '20%',
+                                    width: '15%',
                                     background: '#00d4ff',
                                     color: '#000',
                                     height: '50px',
@@ -523,7 +540,7 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
                     <div style={{ borderTop: '1px solid #333', paddingTop: '15px', marginTop: '15px' }}>
                         <h3 style={{ fontSize: '16px', color: '#ff4d4d', marginBottom: '10px' }}>💸 Adicionar Despesas</h3>
                         <div style={{ width: '100%' }}>
-                            <select value={tempCategory} onChange={(e) => setTempCategory(e.target.value)} style={{ width: '30%', height: '50px', float: 'left', marginRight: '5px' }}>
+                            <select value={tempCategory} onChange={(e) => setTempCategory(e.target.value)} style={{ width: tempCategory === "Pescado" ? '100%' : '30%', height: '50px', float: 'left', marginRight: tempCategory === "Pescado" ? '0' : '5px', marginBottom: tempCategory === "Pescado" ? '10px' : '0' }}>
                                 <option value="Gelo">Gelo</option>
                                 <option value="Diesel">Diesel</option>
                                 <option value="Rancho">Rancho</option>
@@ -536,10 +553,10 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
                                 <>
                                     <input
                                         type="text"
-                                        placeholder="Qual Peixe?"
+                                        placeholder="Espécie"
                                         value={tempNotes}
                                         onChange={(e) => setTempNotes(e.target.value)}
-                                        style={{ width: '35%', height: '50px', float: 'left', marginRight: '5px' }}
+                                        style={{ width: '50%', height: '50px', float: 'left', marginRight: '5px' }}
                                         list="species-list"
                                     />
                                     <input
@@ -547,7 +564,7 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
                                         placeholder="kg"
                                         value={tempQty}
                                         onChange={(e) => setTempQty((e.target.value || "").replace(',', '.'))}
-                                        style={{ width: '15%', height: '50px', float: 'left', marginRight: '5px' }}
+                                        style={{ width: '20%', height: '50px', float: 'left', marginRight: '5px' }}
                                     />
                                 </>
                             ) : (
@@ -573,7 +590,7 @@ export default function UnifiedEntryForm({ fishermen, speciesSuggestions = [] }:
                                 type="button"
                                 onClick={addExpense}
                                 style={{
-                                    width: '15%',
+                                    width: tempCategory === "Pescado" ? '20%' : '15%',
                                     background: '#ff4d4d',
                                     color: '#fff',
                                     height: '50px',

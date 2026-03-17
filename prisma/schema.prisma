@@ -5,6 +5,22 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enum para identificar a propriedade do pescado recebido no estoque
+enum TipoPropriedade {
+  PROPRIO
+  TERCEIROS
+}
+
+// Enum para o ciclo de vida das NFC-e/NF-e do evento orquestrado
+enum StatusFiscal {
+  PENDENTE
+  PROCESSANDO
+  AUTORIZADA
+  REJEITADA
+  CANCELADA
 }
 
 model Fisherman {
@@ -12,9 +28,11 @@ model Fisherman {
   name        String
   boat_name   String?
   phone       String?
-  rgp         String?
-  cpf         String?
-  metodo      String?
+  rgp               String?
+  cpf               String?
+  cnpj              String?
+  inscricaoEstadual String?
+  metodo            String?
   landings    Landing[]
   expenses    Expense[]
   settlements Settlement[]
@@ -22,18 +40,21 @@ model Fisherman {
   updatedAt   DateTime     @updatedAt
   createdBy   User?        @relation(fields: [createdById], references: [id])
   createdById String?
+
+  certificate      FishermanCertificate?
+  inventoryBatches InventoryBatch[]
+  fiscalEvents     FiscalEvent[]
 }
 
-
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
-  password    String
-  name        String
-  role        String   @default("staff")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  name      String
+  role      String   @default("staff")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   landings    Landing[]
   expenses    Expense[]
   settlements Settlement[]
@@ -51,6 +72,8 @@ model Landing {
   updatedAt   DateTime  @updatedAt
   createdBy   User?     @relation(fields: [createdById], references: [id])
   createdById String?
+  batchId     String?
+  batch       InventoryBatch? @relation(fields: [batchId], references: [id])
 }
 
 model Expense {
@@ -78,10 +101,10 @@ model Settlement {
   net_total      Float
   fishermanId    String
   fisherman      Fisherman @relation(fields: [fishermanId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  createdBy   User?        @relation(fields: [createdById], references: [id])
-  createdById String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdBy      User?     @relation(fields: [createdById], references: [id])
+  createdById    String?
 }
 
 model NotificationRecipient {
@@ -91,4 +114,124 @@ model NotificationRecipient {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Armazenamento de credenciais fiscais do Pescador (para emissão em nome dele)
+model FishermanCertificate {
+  id          String    @id @default(cuid())
+  fishermanId String    @unique
+  fisherman   Fisherman @relation(fields: [fishermanId], references: [id], onDelete: Cascade)
+
+  // O certificado base64/pfx deve ser armazenado preferencialmente em um cofre (Vault/AWS KMS), e aqui guardamos a chave 
+  certUrlOuRef String
+  passwordHash String // Senha criptografada do certificado
+  validUntil   DateTime
+  createdAt    DateTime @default(now())
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String   @unique // Nome da espécie (ex: Tainha)
+  ncm          String?  // Nomenclatura Comum do Mercosul
+  cest         String?  // Código Especificador da Substituição Tributária
+  barcode      String?  @unique 
+  defaultPrice Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  batches InventoryBatch[]
+}
+
+// Controle de Lotes Físicos/Fiscais (Substitui e expande o conceito de Landing atual para "Estoque")
+model InventoryBatch {
+  id               String          @id @default(cuid())
+  species          String          // Nome textual (pode ser cópia do produto para histórico)
+  productId        String?
+  product          Product?        @relation(fields: [productId], references: [id])
+  initialWeight_kg Float           // Peso inicial dado na entrada
+  currentWeight_kg Float           // Saldo em tempo real do lote (físico/fiscal)
+  propertyType     TipoPropriedade
+
+  // Referência Fiscal de Entrada
+  entryNfeKey String? // Chave de acesso da NF de Entrada (Ambos os cenários)
+  entryCfop   String? // Ex: 1.102 (Próprio - Compra) ou 5.905 (Terceiros - Depósito)
+
+  barcode      String?         @unique // EAN-13 ou Código Interno
+  defaultPrice Float?          // Preço sugerido de venda
+  fishermanId  String?         // Mandatório caso propertyType == TERCEIROS
+  fisherman    Fisherman?      @relation(fields: [fishermanId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  saleItems      SaleItem[]
+  spoilageLosses SpoilageLoss[]
+  fiscalEvents   FiscalEvent[]
+  landings       Landing[]
+}
+
+// Nova Modelagem de Venda Frente de Caixa (Carrinho Misto)
+model Sale {
+  id           String        @id @default(cuid())
+  totalAmount  Float
+  customerCpf  String? // CPF na nota (opcional, validar limite R$ 10.000)
+  items        SaleItem[]
+  fiscalEvents FiscalEvent[]
+  createdAt    DateTime      @default(now())
+}
+
+model SaleItem {
+  id         String         @id @default(cuid())
+  saleId     String
+  sale       Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  batchId    String
+  batch      InventoryBatch @relation(fields: [batchId], references: [id])
+  weight_kg  Float
+  pricePerKg Float
+  subtotal   Float
+}
+
+// Módulo crucial de split de faturação: Controla a emissão das múltiplas notas de uma única venda
+model FiscalEvent {
+  id               String          @id @default(cuid())
+  saleId           String?
+  sale             Sale?           @relation(fields: [saleId], references: [id])
+  batchId          String?
+  inventoryBatch   InventoryBatch? @relation(fields: [batchId], references: [id])
+  fishermanId      String?
+  fisherman        Fisherman?      @relation(fields: [fishermanId], references: [id])
+  eventType        String // "VENDA_PROPRIO", "VENDA_TERCEIROS", "RETORNO_DEPOSITO", "REMESSA_DEPOSITO"
+  cfop             String // Ex: 5.102, 5.906, 5.905
+  nfeKey           String? // Chave da nota pós-Sefaz
+  status           StatusFiscal @default(PENDENTE)
+  errorMessage     String?
+  createdAt        DateTime     @default(now())
+}
+
+// Módulo de Quebra/Perda (Desidratação/Limpeza/Evisceração)
+model SpoilageLoss {
+  id        String         @id @default(cuid())
+  batchId   String
+  batch     InventoryBatch @relation(fields: [batchId], references: [id])
+  weight_kg Float
+  reason    String // "Limpeza", "Desidratação Expositores", etc.
+
+  // Se for TERCEIROS, guardamos a NF-e de Retorno Simbólico para fechar matriz fiscal
+  returnNfeKey String?
+  returnStatus StatusFiscal?
+
+  createdAt   DateTime @default(now())
+  createdById String // ID do usuário/operador local
+}
+model GlobalFiscalConfig {
+  id              String   @id @default("global")
+  companyName     String
+  cnpj            String
+  focusToken      String?  
+  environment     String   @default("homologacao") // "homologacao" ou "producao"
+  
+  certBase64      String?
+  certPassword    String?
+  certValidUntil  DateTime?
+  
+  updatedAt       DateTime @updatedAt
 }

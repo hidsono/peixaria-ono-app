@@ -139,8 +139,8 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
 
             const bodyExpenses = receipt.expenses.map((e: any) => [
                 new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
-                e.category + (e.quantity ? ` (${e.quantity} kg)` : ''),
-                e.notes || "-",
+                (e.category === "Pescado" && e.notes ? e.notes : e.category) + (e.quantity ? ` (${e.quantity} kg)` : ''),
+                e.category === "Pescado" ? "-" : (e.notes || "-"),
                 `R$ ${e.amount.toFixed(2)}`
             ]);
 
@@ -179,7 +179,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
             day.expenses.forEach((e: any) => {
                 dailyBody.push([
                     "",
-                    `Saída: ${e.category}`,
+                    `Saída: ${e.category === "Pescado" && e.notes ? e.notes : e.category}`,
                     e.quantity ? `${e.quantity} kg` : "-",
                     `R$ ${e.amount.toFixed(2)}`
                 ]);
@@ -263,7 +263,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                             {/* Saídas */}
                             {day.expenses.map((e: any, i: number) => (
                                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', paddingLeft: '10px', color: '#ff0000' }}>
-                                    <span>📤 {e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
+                                    <span>📤 {e.category === "Pescado" && e.notes ? e.notes : e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
                                     <span>- R$ {e.amount.toFixed(2)}</span>
                                 </div>
                             ))}
@@ -427,8 +427,8 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
                                 return (
                                     <div key={e.id} style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isFish ? 'rgba(0,150,255,0.05)' : 'rgba(255,0,0,0.05)', padding: '10px', borderRadius: '6px' }}>
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} - <strong>{e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
-                                            {e.notes && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{e.notes}</div>}
+                                            <div style={{ fontSize: '13px' }}>{new Date(e.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} - <strong>{e.category === "Pescado" && e.notes ? e.notes : e.category}</strong> {e.quantity ? `(${e.quantity} kg)` : ''}</div>
+                                            {e.notes && e.category !== "Pescado" && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{e.notes}</div>}
                                         </div>
                                         
                                         {isFish ? (
@@ -485,7 +485,7 @@ export default function SettlementManager({ fishermen }: { fishermen: any[] }) {
 
                                 {day.expenses.map((e: any, i: number) => (
                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '4px', color: 'var(--danger)' }}>
-                                        <span>📤 {e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
+                                        <span>📤 {e.category === "Pescado" && e.notes ? e.notes : e.category} {e.quantity ? `(${e.quantity}kg)` : ''}</span>
                                         <span>- R$ {(expensesAmounts[e.id] ?? e.amount).toFixed(2)}</span>
                                     </div>
                                 ))}

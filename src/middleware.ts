@@ -5,12 +5,7 @@ export function middleware(request: NextRequest) {
     const session = request.cookies.get('auth_session');
     const { pathname } = request.nextUrl;
 
-    // 1. Permitir acesso público a APIs e rotas de teste (Crucial para o Inngest)
-    if (pathname.startsWith('/api') || pathname.startsWith('/teste-online')) {
-        return NextResponse.next();
-    }
-
-    // 2. Permitir acesso à página de login e registro
+    // Permitir acesso à página de login e registro
     if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
         if (session) {
             return NextResponse.redirect(new URL('/pescadores', request.url));
@@ -18,7 +13,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // 3. Redirecionar para login se não houver sessão ativa
+    // Redirecionar para login se não houver sessão ativa
     if (!session) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -34,8 +29,8 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
-         * - logo.png (app logo)
+         * - teste-online (página de teste)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico|logo.png).*)',
+        '/((?!api|teste-online|_next/static|_next/image|favicon.ico).*)',
     ],
 };

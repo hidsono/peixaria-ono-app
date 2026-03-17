@@ -10,7 +10,7 @@ export const processFiscalEvents = inngest.createFunction(
 
     // 1. Busca todos os eventos pendentes dessa venda no banco
     const pendingEvents = await step.run("buscar-eventos-pendentes", async () => {
-      return prisma.fiscalEvent.findMany({ 
+      return (prisma as any).fiscalEvent.findMany({ 
         where: { saleId, status: "PENDENTE" } 
       });
     });
@@ -19,7 +19,7 @@ export const processFiscalEvents = inngest.createFunction(
       
       // 2. Mudar status para 'PROCESSANDO' para o Web Socket / Polling do PDV atualizar a UI
       await step.run(`marcar-como-processando-${fiscalEvent.id}`, async () => {
-        return prisma.fiscalEvent.update({
+        return (prisma as any).fiscalEvent.update({
           where: { id: fiscalEvent.id },
           data: { status: "PROCESSANDO" } 
         });
@@ -49,7 +49,7 @@ export const processFiscalEvents = inngest.createFunction(
 
         // 4. Marca EVENTO como Sucesso (AUTORIZADA) no Banco
         await step.run(`marcar-autorizada-${fiscalEvent.id}`, async () => {
-          return prisma.fiscalEvent.update({
+          return (prisma as any).fiscalEvent.update({
             where: { id: fiscalEvent.id },
             data: { status: "AUTORIZADA", nfeKey: apiRef.chave_nfe }
           });
@@ -63,7 +63,7 @@ export const processFiscalEvents = inngest.createFunction(
 
           // Pula as checagens por ser só simulação (igual block acima num ambiente real)
           await step.run(`marcar-autorizada-${fiscalEvent.id}`, async () => {
-            return prisma.fiscalEvent.update({
+            return (prisma as any).fiscalEvent.update({
               where: { id: fiscalEvent.id },
               data: { status: "AUTORIZADA", nfeKey: apiRef.chave_nfe }
             });

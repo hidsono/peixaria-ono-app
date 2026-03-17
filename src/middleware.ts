@@ -3,16 +3,22 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
     const session = request.cookies.get('auth_session');
+    const { pathname } = request.nextUrl;
 
-    // Allow login and register page access
-    if (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')) {
+    // 1. Permitir acesso público a APIs e rotas de teste (Crucial para o Inngest)
+    if (pathname.startsWith('/api') || pathname.startsWith('/teste-online')) {
+        return NextResponse.next();
+    }
+
+    // 2. Permitir acesso à página de login e registro
+    if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
         if (session) {
             return NextResponse.redirect(new URL('/pescadores', request.url));
         }
         return NextResponse.next();
     }
 
-    // Redirect to login if no session
+    // 3. Redirecionar para login se não houver sessão ativa
     if (!session) {
         return NextResponse.redirect(new URL('/login', request.url));
     }

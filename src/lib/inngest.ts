@@ -1,4 +1,6 @@
 import { Inngest } from "inngest";
 
-// Inicializa o cliente Inngest para o Pescado Mix (Split Faturamento) e Orquestração Fiscal
-export const inngest = new Inngest({ id: "peixaria-ono-fiscal" });
+// Inicializa o cliente Inngest com o ID correto do projeto
+export const inngest = new Inngest({ 
+  id: "peixaria-ono-app"
+});

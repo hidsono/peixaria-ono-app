@@ -34,10 +34,12 @@ export const processFiscalEvents = inngest.createFunction(
 
         // O SEFAZ às vezes demora. O Inngest espera e recheca o status depois de 3 segundos
         let aprovada = false;
-        while (!aprovada) {
-            await step.sleep(`esperar-autorizacao-${fiscalEvent.id}`, "3s");
+        let tentativa = 0;
+        while (!aprovada && tentativa < 20) {
+            tentativa++;
+            await step.sleep(`esperar-autorizacao-${fiscalEvent.id}-${tentativa}`, "3s");
             
-            const status = await step.run(`checar-sefaz-${fiscalEvent.id}`, async () => {
+            const status = await step.run(`checar-sefaz-${fiscalEvent.id}-${tentativa}`, async () => {
                 return await checarStatusFocus(apiRef.id);
             });
             

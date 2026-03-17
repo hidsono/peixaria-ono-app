@@ -29,6 +29,7 @@ export default function UnifiedEntryForm({ fishermen, products = [] }: { fisherm
 
     const [isSaving, setIsSaving] = useState(false);
     const [lastTicket, setLastTicket] = useState<any>(null);
+    const [emitirNFe, setEmitirNFe] = useState(false);
     const [isListening, setIsListening] = useState(false);
 
     const startVoiceCommand = () => {
@@ -207,7 +208,8 @@ export default function UnifiedEntryForm({ fishermen, products = [] }: { fisherm
                 fishermanId: fishermanId,
                 date: date,
                 landings: finalLandings,
-                expenses: finalExpenses
+                expenses: finalExpenses,
+                emitirNFe: emitirNFe
             });
 
             if (result.success) {
@@ -633,13 +635,73 @@ export default function UnifiedEntryForm({ fishermen, products = [] }: { fisherm
                         )}
                     </div>
 
+                    {/* Toggle NF-e de Remessa */}
+                    <div style={{ 
+                        marginTop: '20px', 
+                        padding: '15px', 
+                        backgroundColor: emitirNFe ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)', 
+                        border: emitirNFe ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #333', 
+                        borderRadius: '12px',
+                        transition: 'all 0.3s ease'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                                <div style={{ fontWeight: 'bold', fontSize: '14px', color: emitirNFe ? '#10b981' : '#8892b0' }}>
+                                    📄 Emitir NF-e de Remessa
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#8892b0', marginTop: '4px' }}>
+                                    CFOP 5.905 — Remessa para Depósito (Pescador → Peixaria)
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setEmitirNFe(!emitirNFe)}
+                                style={{
+                                    width: '52px',
+                                    height: '28px',
+                                    borderRadius: '14px',
+                                    border: 'none',
+                                    backgroundColor: emitirNFe ? '#10b981' : '#333',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease',
+                                    flexShrink: 0
+                                }}
+                            >
+                                <div style={{
+                                    width: '22px',
+                                    height: '22px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#fff',
+                                    position: 'absolute',
+                                    top: '3px',
+                                    left: emitirNFe ? '27px' : '3px',
+                                    transition: 'left 0.3s ease',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                }} />
+                            </button>
+                        </div>
+                        {emitirNFe && (
+                            <div style={{ 
+                                marginTop: '10px', 
+                                padding: '8px 12px', 
+                                backgroundColor: 'rgba(16, 185, 129, 0.05)', 
+                                borderRadius: '8px',
+                                fontSize: '11px',
+                                color: '#10b981'
+                            }}>
+                                ⚡ Ao salvar, o sistema agendará automaticamente a emissão da NF-e em nome do pescador via Inngest/FocusNFe.
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         onClick={handleSubmit}
                         className="btn-primary"
-                        style={{ width: '100%', marginTop: '25px', height: '50px', fontSize: '18px' }}
+                        style={{ width: '100%', marginTop: '15px', height: '50px', fontSize: '18px' }}
                         disabled={isSaving || !fishermanId}
                     >
-                        {isSaving ? "Salvando..." : "Finalizar e Gerar Ticket"}
+                        {isSaving ? "Salvando..." : (emitirNFe ? "Finalizar e Emitir NF-e" : "Finalizar e Gerar Ticket")}
                     </button>
                 </div>
 

@@ -242,11 +242,12 @@ export async function createUnifiedTicket(data: {
     date: string;
     landings: { species: string; weight_kg: number; productId?: string }[];
     expenses: { category: string; amount: number; quantity?: number; notes?: string }[];
+    emitirNFe?: boolean;
 }) {
     const user = await getCurrentUser();
     if (!user) throw new Error("Acesso negado.");
 
-    const { fishermanId, date, landings, expenses } = data;
+    const { fishermanId, date, landings, expenses, emitirNFe = false } = data;
     const ticketDate = new Date(`${date}T12:00:00Z`);
 
     await prisma.$transaction(async (tx) => {
@@ -277,15 +278,17 @@ export async function createUnifiedTicket(data: {
 
         }
 
-        // 3. Agendar Evento Fiscal ÚNICO para o Ticket (Remessa para Depósito)
-        await (tx as any).fiscalEvent.create({
-            data: {
-                fishermanId,
-                eventType: 'REMESSA_DEPOSITO',
-                cfop: '5.905',
-                status: 'PENDENTE',
-            }
-        });
+        // 3. Agendar Evento Fiscal ÚNICO para o Ticket (Remessa para Depósito) - SOMENTE SE SOLICITADO
+        if (emitirNFe) {
+            await (tx as any).fiscalEvent.create({
+                data: {
+                    fishermanId,
+                    eventType: 'REMESSA_DEPOSITO',
+                    cfop: '5.905',
+                    status: 'PENDENTE',
+                }
+            });
+        }
 
         for (const e of expenses) {
             await tx.expense.create({

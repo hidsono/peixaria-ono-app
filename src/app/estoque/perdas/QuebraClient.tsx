@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { AlertTriangle, History, CheckCircle2, ChevronLeft, Search } from 'lucide-react'
+import { AlertTriangle, History, CheckCircle2, ChevronLeft, Search, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { registrarQuebra } from '@/app/actions/inventory-actions'
 
